@@ -37,7 +37,12 @@ const CommentForm = () => {
         onChange={handleChange}
         margin="normal"
       />
-      <Button type="submit" variant="contained" color="primary">
+      <Button
+        type="submit"
+        variant="contained"
+        color="primary"
+        disabled={!draft.trim()}
+      >
         Add Comment
       </Button>
     </Box>
