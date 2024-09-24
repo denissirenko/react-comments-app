@@ -10,6 +10,7 @@ import {
   addLocalComment,
   deleteLocalComment,
   getLocalComments,
+  syncLocalComments,
 } from "../utils/localComments";
 
 export const fetchCommentsAsync = createAsyncThunk(
@@ -23,19 +24,30 @@ export const fetchCommentsAsync = createAsyncThunk(
 
 export const addCommentAsync = createAsyncThunk(
   "comments/addComment",
-  async (comment, { dispatch }) => {
+  async (comment, { dispatch, getState }) => {
     const newComment = addLocalComment(comment);
-    dispatch(fetchCommentsAsync());
+    const currentState = getState().comments;
+    const updatedItems = [newComment, ...currentState.items];
+    dispatch(commentSlice.actions.setComments(updatedItems));
     return newComment;
   }
 );
 
 export const deleteCommentAsync = createAsyncThunk(
   "comments/deleteComment",
-  async (id, { dispatch }) => {
-    deleteLocalComment(id);
-    dispatch(fetchCommentsAsync());
-    return id;
+  async (comment, { dispatch, getState }) => {
+    if (comment.isLocal) {
+      deleteLocalComment(comment.id);
+    }
+
+    const currentState = getState().comments;
+    const updatedItems = currentState.items.filter(
+      (item) => item.id !== comment.id
+    );
+    dispatch(commentSlice.actions.setComments(updatedItems));
+    syncLocalComments(updatedItems.filter((item) => item.isLocal));
+
+    return comment.id;
   }
 );
 
@@ -51,6 +63,10 @@ const commentSlice = createSlice({
     updateDraft: (state, action) => {
       state.draft = action.payload;
       saveDraft(action.payload);
+    },
+    setComments: (state, action) => {
+      state.items = action.payload;
+      saveState(state);
     },
   },
   extraReducers: (builder) => {
@@ -69,5 +85,5 @@ const commentSlice = createSlice({
   },
 });
 
-export const { updateDraft } = commentSlice.actions;
+export const { updateDraft, setComments } = commentSlice.actions;
 export default commentSlice.reducer;

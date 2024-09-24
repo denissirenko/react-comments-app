@@ -5,6 +5,7 @@ export const addLocalComment = (comment) => {
     id: Date.now(),
     ...comment,
     createdAt: new Date().toISOString(),
+    isLocal: true,
   };
   localComments = [newComment, ...localComments];
   localStorage.setItem("localComments", JSON.stringify(localComments));
@@ -18,4 +19,9 @@ export const deleteLocalComment = (id) => {
 
 export const getLocalComments = () => {
   return localComments;
+};
+
+export const syncLocalComments = (comments) => {
+  localComments = comments;
+  localStorage.setItem("localComments", JSON.stringify(localComments));
 };
