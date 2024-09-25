@@ -1,27 +1,28 @@
-import React from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { addCommentAsync, updateDraft } from "../redux/commentSlice";
 import { TextField, Button, Box } from "@mui/material";
+import { RootState, AppDispatch } from "../redux/store";
+import { ChangeEvent, FormEvent } from "react";
 
 const CommentForm = () => {
-  const dispatch = useDispatch();
-  const draft = useSelector((state) => state.comments.draft);
+  const dispatch: AppDispatch = useDispatch();
+  const draft = useSelector((state: RootState) => state.comments.draft);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (draft.trim()) {
       dispatch(
         addCommentAsync({
+          id: Date.now().toString(),
           body: draft,
-          postId: 1,
-          userId: 1,
+          isLocal: true,
         })
       );
       dispatch(updateDraft(""));
     }
   };
 
-  const handleChange = (e) => {
+  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     dispatch(updateDraft(e.target.value));
   };
 

@@ -1,4 +1,4 @@
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import { fetchComments } from "../services/api";
 import {
   saveState,
@@ -12,8 +12,29 @@ import {
   getLocalComments,
   syncLocalComments,
 } from "../utils/localComments";
+import { RootState } from "../redux/store";
 
-export const fetchCommentsAsync = createAsyncThunk(
+interface Comment {
+  id: string;
+  body: string;
+  isLocal: boolean;
+}
+
+interface CommentsState {
+  items: Comment[];
+  status: "idle" | "loading" | "succeeded" | "failed";
+  error: string | null | undefined;
+  draft: string;
+}
+
+const initialState: CommentsState = loadState() || {
+  items: [],
+  status: "idle",
+  error: null,
+  draft: loadDraft() || "",
+};
+
+export const fetchCommentsAsync = createAsyncThunk<Comment[], void>(
   "comments/fetchComments",
   async () => {
     const response = await fetchComments();
@@ -22,25 +43,25 @@ export const fetchCommentsAsync = createAsyncThunk(
   }
 );
 
-export const addCommentAsync = createAsyncThunk(
+export const addCommentAsync = createAsyncThunk<Comment, Comment>(
   "comments/addComment",
   async (comment, { dispatch, getState }) => {
     const newComment = addLocalComment(comment);
-    const currentState = getState().comments;
+    const currentState = (getState() as RootState).comments;
     const updatedItems = [newComment, ...currentState.items];
     dispatch(commentSlice.actions.setComments(updatedItems));
     return newComment;
   }
 );
 
-export const deleteCommentAsync = createAsyncThunk(
+export const deleteCommentAsync = createAsyncThunk<string, Comment>(
   "comments/deleteComment",
   async (comment, { dispatch, getState }) => {
     if (comment.isLocal) {
       deleteLocalComment(comment.id);
     }
 
-    const currentState = getState().comments;
+    const currentState = (getState() as RootState).comments;
     const updatedItems = currentState.items.filter(
       (item) => item.id !== comment.id
     );
@@ -53,18 +74,13 @@ export const deleteCommentAsync = createAsyncThunk(
 
 const commentSlice = createSlice({
   name: "comments",
-  initialState: loadState() || {
-    items: [],
-    status: "idle",
-    error: null,
-    draft: loadDraft() || "",
-  },
+  initialState,
   reducers: {
-    updateDraft: (state, action) => {
+    updateDraft: (state, action: PayloadAction<string>) => {
       state.draft = action.payload;
       saveDraft(action.payload);
     },
-    setComments: (state, action) => {
+    setComments: (state, action: PayloadAction<Comment[]>) => {
       state.items = action.payload;
       saveState(state);
     },

@@ -2,7 +2,7 @@
 
 # react-comments-app
 
-This project is a test setup using Vite, React, Material UI.
+This project is a test setup using Vite, React, TypeScript, Vitest, Material UI.
 
 ## Installation
 
@@ -18,4 +18,10 @@ npm install
 
 ```bash
 npm run dev
+```
+
+## Running the tests
+
+```bash
+npm run test
 ```

@@ -1,23 +1,32 @@
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { fetchCommentsAsync, deleteCommentAsync } from "../redux/commentSlice";
 import Comment from "./Comment";
 import { List, CircularProgress, Typography } from "@mui/material";
+import { RootState, AppDispatch } from "../redux/store";
+
+interface Comment {
+  id: string;
+  body: string;
+  isLocal: boolean;
+}
 
 const CommentList = () => {
-  const dispatch = useDispatch();
+  const dispatch: AppDispatch = useDispatch();
+
   const {
     items: comments,
     status,
     error,
-  } = useSelector((state) => state.comments);
+  } = useSelector((state: RootState) => state.comments);
+
   useEffect(() => {
     if (status === "idle") {
       dispatch(fetchCommentsAsync());
     }
   }, [status, dispatch]);
 
-  const handleDelete = (comment) => {
+  const handleDelete = (comment: Comment) => {
     dispatch(deleteCommentAsync(comment));
   };
 
@@ -42,7 +51,7 @@ const CommentList = () => {
       {comments.map((comment) => (
         <Comment
           key={comment.id}
-          comment={comment}
+          body={comment.body}
           onDelete={() => handleDelete(comment)}
         />
       ))}

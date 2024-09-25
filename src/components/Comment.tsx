@@ -1,9 +1,12 @@
-import React from "react";
 import { ListItem, ListItemText, IconButton } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 
-const Comment = ({ comment, onDelete }) => {
-  const { id, isLocal, body } = comment;
+export interface CommentProps {
+  body: string;
+  onDelete: () => void;
+}
+
+const Comment = ({ body, onDelete }: CommentProps) => {
   return (
     <ListItem
       secondaryAction={
