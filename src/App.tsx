@@ -1,9 +1,9 @@
-import React from "react";
 import { Provider } from "react-redux";
 import store from "./redux/store";
 import CommentList from "./components/CommentList";
 import CommentForm from "./components/CommentForm";
 import { Container, Typography } from "@mui/material";
+import StateTransfer from "./components/SharingState";
 
 function App() {
   return (
@@ -12,6 +12,7 @@ function App() {
         <Typography variant="h4" component="h1" gutterBottom>
           Comments App
         </Typography>
+        <StateTransfer />
         <CommentForm />
         <CommentList />
       </Container>
